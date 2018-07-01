@@ -1,8 +1,9 @@
 const Admin = require('../models/admin')
 const Bearing = require('../models/bearing')
-const Excel = require('./excel')
-var path = require('path')
+const path = require('path')
+const fs = require('fs')
 const XLSX = require('xlsx')
+const excelPort = require('excel-export')
 
 exports.index = (req, res, next) => {
   var query = req.query
@@ -146,119 +147,127 @@ exports.import = (req, res) => {
 
   var _ = workbook.Sheets.Sheet1
 
-  if (!_ || _[ 'A2' ].v != '序号' || _[ 'B2' ].v != '姓名' || _[ 'C2' ].v != '学号' || _[ 'D2' ].v != '学院' || _[ 'E2' ].v != '联系方式' || _[ 'F2' ].v != '部门') {
+  if (!_ || _[ 'A1' ].v !== '型号' || _[ 'B1' ].v !== '本数') {
     return res.json({success: false, message: 'excel格式错误，请下载模版，严格按照模版格式！！！！'})
   }
 
-  var studentArr = [] // 遍历保存学生数据
-  let studentArrIndex = 0 // 遍历保存数据索引
-  var errArr = [] // 保存有误的数据
+  var bearingArr = [] // 遍历保存学生数据
+  let bearingArrIndex = 0 // 遍历保存数据索引
 
-  var exist = 3
+  var exist = 2
   while (exist) {
-    if (_[ 'B' + exist ] && _[ 'B' + exist ].v && _[ 'C' + exist ] && _[ 'C' + exist ].v && _[ 'D' + exist ] && _[ 'D' + exist ].v) {
+    if (_[ 'A' + exist ] && _[ 'A' + exist ].v) {
       let _name = ''
-      let _studentId = ''
-      let _tel = ''
-      let _unit = ''
-      let _college = ''
+      let _ben = ''
+
+      if (_[ 'A' + exist ]) {
+        _name = _[ 'A' + exist ].v
+      }
 
       if (_[ 'B' + exist ]) {
-        _name = _[ 'B' + exist ].v
+        _ben = _[ 'B' + exist ].v
       }
 
-      if (_[ 'C' + exist ]) {
-        _studentId = _[ 'C' + exist ].v
-      }
-
-      if (_[ 'D' + exist ]) {
-        _college = _[ 'D' + exist ].v
-      }
-
-      if (_[ 'E' + exist ]) {
-        _tel = _[ 'E' + exist ].v
-      }
-
-      if (_[ 'F' + exist ]) {
-        _unit = _[ 'F' + exist ].v
-      }
-
-      studentArr.push({name: _name, studentId: _studentId, tel: _tel, unit: _unit, college: _college})
+      bearingArr.push({name: _name, ben: _ben})
       exist++
     } else {
       exist = false
     }
   }
 
-  if (studentArr.length > 0) {
-    saveStudent(studentArr[ studentArrIndex ], studentArrIndex)
+  if (bearingArr.length > 0) {
+    saveBearing(bearingArr[ bearingArrIndex ], bearingArrIndex)
   }
 
   // 遍历函数
-  function saveStudent (item, index) {
-    Student.findOne({
+  function saveBearing (item, index) {
+    Bearing.findOne({
       '$or': [
         {
-          studentId: item.studentId
-        }, {
           name: item.name
         }
       ]
-    }, (err, student) => {
+    }, (err, bearing) => {
       if (err) {
         return res.json({success: false, message: '服务端出错,请联系15988826390'})
       }
-      if (student) {
-        if (student.name == item.name && student.college == item.college && student.studentId == item.studentId) {
-          student.unit = item.unit
-          student.tel = item.tel
-
-          student.save((err, newStudent) => {
-            if (err) {
-              return res.json({success: false, message: '服务端出错,请联系15988826390'})
-            }
-          })
-        } else {
-          errArr.push({studentId: item.studentId, name: item.name, err: '学号与学生姓名或者学院不一致'})
-        }
+      if (bearing) {
+        bearing.ben = item.ben
+        bearing.save((err, newBearing) => {
+          if (err) {
+            return res.json({success: false, message: '服务端出错,请联系15988826390'})
+          }
+        })
       } else {
-        errArr.push({studentId: item.studentId, name: item.name, err: '学号不存在(文档中错误或者学生没有绑定)'})
+        var _bearing = new Bearing({
+          name: item.name,
+          ben: item.ben
+        })
+        _bearing.save((err, newBearing) => {
+          if (err) {
+            return res.json({success: false, message: '服务端出错,请联系15988826390'})
+          }
+        })
       }
 
-      if (index == studentArr.length - 1) {
-        // return res.json({
-        // 	success: true,
-        // 	errArr: errArr
-        // })
-
-        if (errArr.length > 0) {
-          var header = [
-            {
-              caption: '学号',
-              type: 'string',
-              width: 20
-            }, {
-              caption: '姓名',
-              type: 'string',
-              width: 20
-            }, {
-              caption: '错误信息',
-              type: 'string',
-              width: 20
-            }
-          ]
-
-          // 导出表格
-          Excel.checkout(header, errArr, function (filePath) {
-            return res.json({success: true, errFile: filePath})
-          })
-        } else {
-          return res.json({success: true, message: '无错误'})
-        }
+      if (index === bearingArr.length - 1) {
+        return res.json({success: true, message: '无错误'})
       } else {
-        studentArrIndex++
-        saveStudent(studentArr[ studentArrIndex ], studentArrIndex)
+        bearingArrIndex++
+        saveBearing(bearingArr[ bearingArrIndex ], bearingArrIndex)
       }
     })
   }
+}
+
+// 导出数据
+exports.exportData = (req, res) => {
+  var header = [
+    {
+      caption: '型号',
+      type: 'number',
+      width: 20
+    }, {
+      caption: '本数',
+      type: 'string',
+      width: 20
+    }
+  ]
+
+  Bearing.find({}).exec((err, Bearings) => {
+    if (err) {
+      return res.json({success: false, message: '导出错误'})
+    }
+
+    var conf = {}
+    var filename = 'excel-' // 只支持字母和数字命名
+
+    conf.cols = header
+
+    var array = []
+
+    Bearings.map((item, index) => {
+      var name = item.name || ''
+      var ben = item.ben || ''
+      array.push([ name, ben ])
+    })
+
+    conf.rows = array
+    var result = excelPort.execute(conf)
+
+    var random = Date.parse(new Date())
+
+    var uploadDir = path.join(__dirname, '../', '/public/files/')
+    var filePath = uploadDir + filename + random + '.xlsx'
+
+    fs.writeFile(filePath, result, 'binary', function (err) {
+      if (err) {
+        console.log(err)
+      }
+      res.json({
+        success: true,
+        file: '/files/' + filename + random + '.xlsx'
+      })
+    })
+  })
 }

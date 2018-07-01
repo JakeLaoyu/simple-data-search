@@ -16,5 +16,6 @@ router.post('/admin/update', Admin.adminRequired, Bearing.update)
 router.post('/admin/bearings/del', Admin.adminRequired, Bearing.dels)
 
 router.post('/admin/import', Admin.adminRequired, Upload.upload.single('file'), Admin.import)
+router.get('/admin/export', Admin.adminRequired, Admin.exportData)
 
 module.exports = router
