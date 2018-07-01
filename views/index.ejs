@@ -134,7 +134,7 @@
         // 全选
         $('.choose-all').click(function() {
           $('table [type="checkbox"]').each(function() {
-            $(this).prop('checked', !$(this).prop('checked'))
+            $(this).prop('checked', true)
           })
         })
 
@@ -144,8 +144,6 @@
           $('table [type="checkbox"]:checked').each(function() {
             ids.push($(this).val())
           })
-
-          console.log(ids)
 
           if (ids.length > 0) {
             var delLayer = layer.confirm('是否删除', {
