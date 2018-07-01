@@ -285,24 +285,13 @@
                 $('#import-input').click()
               })
               if (res.success) {
-                if (res.errFile) {
-                  var layerConfirm = layer.confirm('是否下载有错误的文件', {
-                    title: ['发生错误', 'color:red'],
-                    btn: ['下载', '取消'], //按钮
-                    closeBtn: 0
-                  }, function() {
-                    window.open(res.errFile, '_blank');
-                    layer.close(layerConfirm)
-                  }, function() {
-                    window.location.reload()
-                  });
-
-                } else {
-                  layer.alert('上传成功', {
-                    skin: 'layui-layer-molv', //样式类名
-                    closeBtn: 0
-                  });
-                }
+                layer.alert('上传成功', {
+                  skin: 'layui-layer-molv', //样式类名
+                  closeBtn: 0
+                }, function(index){
+                  layer.close(index)
+                  window.location.reload()
+                });
               } else {
                 layer.msg(res.message);
               }
