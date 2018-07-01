@@ -1,0 +1,56 @@
+@import "./style.less";
+@mobile: ~"only screen and (max-device-width: 720px), only screen and (-webkit-min-device-pixel-ratio: 1.5) and (max-width: 720px)";
+.profile-element {
+	.img-circle {
+		width: 48px;
+		height: 48px;
+		border-radius: 50%;
+	}
+}
+
+.wrapper-content {
+	padding: 0;
+}
+
+.float-e-margins {
+	padding: 20px;
+	background: #fff;
+}
+
+h3 {
+	padding: 10px 0;
+	border-bottom: 1px solid #e7eaec;
+}
+
+#wrapper {
+	height: 100%;
+}
+
+#page-wrapper {
+	min-height: 100%;
+}
+
+@media @mobile {
+  .navbar-static-side {
+    display: none;
+  }
+	.ibox {
+		padding: 0;
+		&-content {
+			padding-left: 0;
+			padding-right: 0;
+		}
+	}
+	.row {
+		margin: 0;
+	}
+	.col-lg-12 {
+		padding: 0;
+	}
+}
+
+.search {
+  #page-wrapper {
+    margin: 0;
+  }
+}

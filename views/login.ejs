@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>管理员登录</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+  <!-- <link rel='stylesheet prefetch' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css'> -->
+  <link rel="stylesheet" href="/style/login.css">
+
+</head>
+
+<body class="login">
+
+
+  <div class="container">
+    <div class="info">
+      <h1>管理员登录</h1>
+    </div>
+  </div>
+  <div class="form">
+    <div class="error hide">用户名或密码不正确</div>
+    <form class="register-form">
+      <input type="text" class="qyname" name="qyname" placeholder="name" />
+      <input type="password" class="qypassword" name="qypassword" placeholder="password" />
+      <!-- <input type="text" placeholder="email address"/> -->
+      <button>注册</button>
+      <p class="message">Already registered? <a href="#">Sign In</a></p>
+    </form>
+    <form class="login-form" method="POST" action="/signin">
+      <input type="text" class="qyname" name="qyname" autocomplete="off" placeholder="username" />
+      <input type="password" class="qypassword" name="qypassword" autocomplete="off" placeholder="password" />
+      <button>登录</button>
+      <p class="message">Not registered? <a href="#">Create an account</a></p>
+    </form>
+  </div>
+  <script src="https://cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+  <script type="text/javascript">
+    $('.message a').click(function() {
+      $('form').animate({
+        height: "toggle",
+        opacity: "toggle"
+      }, "slow");
+    });
+
+    // 登录
+    $('.login-form').submit(function(e) {
+      e.preventDefault()
+      var regForm = $('.login-form')
+      var qyname = regForm.find('.qyname').val()
+      var qypassword = regForm.find('.qypassword').val()
+
+      // 注册
+      $.ajax({
+        url: '/signin',
+        type: "POST",
+        data: {
+          qyname: qyname,
+          qypassword: qypassword
+        },
+        success: function(res) {
+          if (res.success) {
+            window.location.href = '/admin'
+          } else {
+            $('.error').html(res.message).removeClass('hide')
+          }
+        }
+      })
+    })
+
+    // 注册
+    $('.register-form').submit(function(e) {
+      e.preventDefault()
+      var regForm = $('.register-form')
+      var qyname = regForm.find('.qyname').val()
+      var qypassword = regForm.find('.qypassword').val()
+
+      // 注册
+      $.ajax({
+        url: '/signup',
+        type: "POST",
+        data: {
+          qyname: qyname,
+          qypassword: qypassword
+        },
+        success: function(res) {
+          if (res.success) {
+            window.location.href = '/admin'
+          } else {
+            $('.error').html(res.message).removeClass('hide')
+          }
+        }
+      })
+    })
+  </script>
+</body>
+
+</html>
