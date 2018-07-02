@@ -40,7 +40,7 @@ app.use(session({
   },
   resave: true,
   saveUninitialized: true,
-  secret: 'qinyi',
+  secret: 'hrbbrg',
   // session持久化，存在到mongodb中
   store: new MongoStore({
     url: dbUrl,
