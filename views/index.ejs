@@ -133,9 +133,8 @@
       $(document).ready(function() {
         // 全选
         $('.choose-all').click(function() {
-          $('table [type="checkbox"]').each(function() {
-            $(this).prop('checked', true)
-          })
+          var status = $('table [type="checkbox"]:checked').length === $('.table .gradeX').length
+          $('table [type="checkbox"]').prop('checked', !status)
         })
 
         // 删除选中
