@@ -9,7 +9,7 @@ router.get('/admin', Admin.adminRequired, Admin.index)
 
 router.get('/show/login', Admin.showLogin)
 router.post('/signin', Admin.signin)
-// router.post('/signup', Admin.signup)
+router.post('/signup', Admin.signup)
 router.get('/logout', Admin.logout)
 
 router.post('/admin/update', Admin.adminRequired, Bearing.update)
